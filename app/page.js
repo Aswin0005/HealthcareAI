@@ -1,12 +1,10 @@
-import Image from "next/image";
-import Categories from "@/components/Categories";
-import LandingPage from "@/components/LandingPage";
+import Categories from '../components/Categories'
 
 export default function Home() {
   return (
     <>
-      {/* <Categories /> */}
-      <LandingPage />
+      <Categories />
+      {/* <LandingPage /> */}
     </>
   );
 }

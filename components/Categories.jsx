@@ -5,7 +5,7 @@ import anxiety from "../public/anxiety.png";
 import stress from "../public/stress.png";
 import grief from "../public/grief.png";
 import sleep from "../public/sleep.png";
-import ShineBorder from "./magicui/shine-border";
+import Link from "next/link";
 
 const cardData = [
     {
@@ -56,7 +56,8 @@ const cardData = [
   
   function Card({ image, backgroundColor, title, description, buttonLabel, height, width, top, left }) {
     return (
-      <div
+      <Link
+      href={`/categories/${title.toLowerCase()}`}
         className="h-[270px] w-[270px] m-2 rounded-2xl relative"
         style={{ backgroundColor }}
       >
@@ -84,7 +85,7 @@ const cardData = [
         <div className="absolute left-6 top-[212px] text-[12px] w-2/3">
           {description}
         </div>
-      </div>
+      </Link>
     );
   }
   
@@ -125,6 +126,7 @@ import stress from "../public/stress.png";
 import grief from "../public/grief.png";
 import sleep from "../public/sleep.png";
 import ShineBorder from "./magicui/shine-border";
+import Link from "next/link";
 
 const cardData = [
   {
@@ -152,7 +154,7 @@ const cardData = [
   {
     image: stress,
     backgroundColor: "#F6EED9",
-    title: "Stress",
+    title: "Relationship",
     description: "Feeling overwhelmed or struggling to cope?",
     buttonLabel: "Chat",
     height: "130px",
@@ -177,7 +179,8 @@ function Card({ image, backgroundColor, title, description, buttonLabel, height,
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div
+    <Link
+    href={`/categories/${title.toLowerCase()}`}
       className="h-[270px] w-[270px] m-2 rounded-2xl relative hover:scale-95 transition duration-300" 
       style={{ backgroundColor }} // Always applying the background color
       onMouseEnter={() => setIsHovered(true)}
@@ -208,7 +211,7 @@ function Card({ image, backgroundColor, title, description, buttonLabel, height,
       <div className="absolute left-6 top-[212px] text-[12px] w-2/3">
         {description}
       </div>
-    </div>
+    </Link>
   );
 }
 
