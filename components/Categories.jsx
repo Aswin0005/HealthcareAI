@@ -125,9 +125,14 @@ import anxiety from "../public/anxiety.png";
 import stress from "../public/stress.png";
 import grief from "../public/grief.png";
 import sleep from "../public/sleep.png";
+import family from "../public/family.png";
+import friend from "../public/friend.png";
+import lonely from "../public/lonely.png";
+import trauma from "../public/trauma.png";
+import depression from "../public/depression.png";
+import chatbot from "../public/chatbot.png"
 import ShineBorder from "./magicui/shine-border";
 import Link from "next/link";
-
 const cardData = [
   {
     image: anxiety,
@@ -142,7 +147,7 @@ const cardData = [
   },
   {
     image: sleep,
-    backgroundColor: "#E5ECF3",
+    backgroundColor: "#F6EED9",
     title: "Sleep Issues",
     description: "Having trouble sleeping or feeling restless?",
     buttonLabel: "Chat",
@@ -153,7 +158,7 @@ const cardData = [
   },
   {
     image: stress,
-    backgroundColor: "#F6EED9",
+    backgroundColor: "#E5ECF3",
     title: "Relationship",
     description: "Feeling overwhelmed or struggling to cope?",
     buttonLabel: "Chat",
@@ -171,9 +176,54 @@ const cardData = [
     height: "160px",
     width: "280px",
     top: "13px",
-    left: "53px",
+    left: "40px",
+  },
+  {
+    image: family,
+    backgroundColor: "#FBEBAD",
+    title: "Family Issues",
+    description: "Experiencing conflicts or difficulties with family members?",
+    buttonLabel: "Chat",
+    height: "130px",
+    width: "180px",
+    top: "35px",
+    left: "90px",
+  },
+  {
+    image: depression,
+    backgroundColor: "#EBF3C6",
+    title: "Depression", // Updated title
+    description: "Feeling persistently sad, hopeless, or uninterested in activities?", 
+    buttonLabel: "Chat",
+    height: "170px",
+    width: "190px",
+    top: "20px",
+    left: "100px",
+  },
+  {
+    image: trauma,
+    backgroundColor: "#FFDDC1", // Updated color for Trauma
+    title: "Trauma",
+    description: "Dealing with the impact of past traumatic experiences?",
+    buttonLabel: "Chat",
+    height: "150px",
+    width: "160px",
+    top: "25px",
+    left: "110px",
+  },
+  {
+    image: lonely,
+    backgroundColor: "#D0F2F1", // Updated color for Loneliness
+    title: "Loneliness",
+    description: "Feeling isolated or struggling with feelings of loneliness?",
+    buttonLabel: "Chat",
+    height: "150px",
+    width: "250px",
+    top: "30px",
+    left: "65px",
   },
 ];
+
 
 function Card({ image, backgroundColor, title, description, buttonLabel, height, width, top, left }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -217,8 +267,44 @@ function Card({ image, backgroundColor, title, description, buttonLabel, height,
 
 function Categories() {
   return (
-    <div className="flex justify-center mt-16">
-      <div className="flex flex-wrap w-[800px] gap-4 justify-center ">
+    <div className="flex justify-center mt-12">
+      <div className="w-[60%] px-6 rounded-lg pl-10">
+  <div className="ml-10 bg-slate-100 p-6 rounded-lg">
+    <h1 className="text-4xl font-bold text-center mt-4 text-blue-800">Talk with AI Chatbot</h1>
+
+    <p className="mt-6 text-lg text-gray-700 text-center leading-relaxed">
+      Our AI chatbot provides a <span className="font-semibold">safe and private space</span> for you to share your feelings without fear of judgment.<br /> <span className="text-xs leading-tight">If you're uncomfortable talking to family, friends, or a partner, you can always turn to the chatbot for <span className="font-semibold">support and guidance.</span></span>
+    </p>
+
+    <div className="flex text-md gap-3">
+    <p className="mt-4 text-gray-800 ml-6">
+      Key Features:
+    </p>
+
+    <ul className="mt-4 text-gray-600 list-disc list-inside">
+    <li>Personalized Health Advice</li>
+    <li>Multi-Language Support</li>
+    <li>Instant AI Responses</li>
+    <li>Seamless Web Scraping</li>
+    <li>Ensured User Privacy</li>
+
+    </ul>
+    </div>
+
+    <div className="flex justify-center mt-8">
+      <button className="text-blue-800 border border-blue-800 hover:bg-blue-800 hover:text-white text-xl font-semibold py-3 px-8 rounded-full shadow-md">
+        Chat with AI
+      </button>
+    </div>
+
+    <div className="flex justify-center mt-6">
+      <Image src={chatbot} alt="Chatbot Illustration" height={225} width={225} className="rounded-md" />
+    </div>
+  </div>
+</div>
+
+
+      <div className="flex flex-wrap w-full grid grid-cols-4 gap-12 pl-10 justify-center overflow-x-hidden">
         {cardData.map((card, index) => (
           <Card
             key={index}
