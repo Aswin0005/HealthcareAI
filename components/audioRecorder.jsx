@@ -1,18 +1,8 @@
 'use client';
 import { useState, useRef } from 'react';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import {
-  Timestamp,
-  collection,
-  doc,
-  updateDoc,
-  arrayUnion,
-  getDoc,
-  setDoc,
-  
-} from 'firebase/firestore';
-import { storage, db } from '../../firebase';
-import { sendAudioToGemini } from '../api/gemini/audio/route';
+import {  ref, uploadBytes } from 'firebase/storage';
+import { addDoc, collection } from 'firebase/firestore';
+
 
 const Chatbot = () => {
   const [message, setMessage] = useState('');
@@ -21,20 +11,6 @@ const Chatbot = () => {
   const [isRecording, setIsRecording] = useState(false);
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
-
-  // Get the current user ID
-  const userId = 'user123';
-
-  // Ensure user is logged in
-  if (!userId) {
-    return <div>Please log in to use the chatbot.</div>;
-  }
-
-  // Get today's date as a string to use as the document ID
-  const getTodayDateString = () => {
-    const today = new Date();
-    return today.toISOString().split('T')[0]; // Format: YYYY-MM-DD
-  };
 
   // Function to start recording audio
   const startRecording = async () => {
@@ -68,82 +44,23 @@ const Chatbot = () => {
 
   // Function to upload audio to Firebase
   const uploadAudioToFirebase = async (audioBlob) => {
-    const audioFileName = `audio_${Date.now()}.mp3`;
+    const audioFileName = `audio_${Date.now()}.wav`;
     const audioRef = ref(storage, `audio/${audioFileName}`);
 
     try {
       // Upload audio to Firebase Storage
       const snapshot = await uploadBytes(audioRef, audioBlob);
 
-      // Get the download URL for the uploaded audio file
-      const audioURL = await getDownloadURL(snapshot.ref);
-
-      // Send audio URL to Gemini API
-      const geminiResponse = await sendAudioToGemini(audioURL);
-      console.log(geminiResponse);
-
-      // Update chat history with audio message and Gemini response
-      setChatHistory((prevChatHistory) => [
-        ...prevChatHistory,
-        {
-          role: 'user',
-          parts: [{ text: 'Audio message:', audioUrl: audioURL }],
-        },
-        { role: 'model', parts: [{ text: geminiResponse }] },
-      ]);
-
-      // Save the conversation to Firestore under user's daily subcollection
-      await updateChatHistoryInFirestore(
-        'Audio message',
-        geminiResponse,
-        audioURL
-      );
+      // Get download URL and save metadata to Firestore
+      const audioURL = `gs://${snapshot.metadata.bucket}/${snapshot.metadata.fullPath}`;
+      await addDoc(collection(firestore, 'audioFiles'), {
+        url: audioURL,
+        timestamp: new Date(),
+      });
 
       console.log('Audio uploaded successfully:', audioURL);
     } catch (error) {
       console.error('Error uploading audio:', error);
-    }
-  };
-
-  // Function to update chat history in Firestore
-  const updateChatHistoryInFirestore = async (
-    userMessage,
-    botResponse,
-    audioUrl = null
-  ) => {
-    const todayDateString = getTodayDateString();
-
-    // Reference to the daily document
-    const dailyDocRef = doc(db, `users/${userId}/chatHistory`, todayDateString);
-
-    try {
-      const dailyDoc = await getDoc(dailyDocRef);
-
-      if (dailyDoc.exists()) {
-        // Document exists, update the chatHistory array
-        await updateDoc(dailyDocRef, {
-          chatHistory: arrayUnion({
-            userMessage,
-            botResponse,
-            audioUrl,
-            timestamp: Timestamp.fromDate(new Date()),
-          }),
-        });
-      } else {
-        // Document does not exist, create it with the chatHistory array
-        await setDoc(dailyDocRef, {
-          chatHistory: [
-            {
-              userMessage,
-              botResponse,
-              audioUrl,
-              timestamp: Timestamp.fromDate(new Date()),
-            },
-          ],
-        });
-      }
-    } catch (error) {
-      console.error('Error updating chat history in Firestore:', error);
     }
   };
 
@@ -162,7 +79,7 @@ const Chatbot = () => {
     setMessage('');
 
     try {
-      const res = await fetch('/api/gemini/chat', {
+      const res = await fetch('/api/categories/relationship', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -176,22 +93,14 @@ const Chatbot = () => {
       const data = await res.json();
 
       if (res.ok) {
-        const finalUserMessage = message;
-        const finalBotResponse = data.response;
-
-        // Update chat history state
         setChatHistory((prevChatHistory) => {
           const updatedChatHistory = [...prevChatHistory];
-          updatedChatHistory.pop(); // Remove the 'loading...' placeholder
+          updatedChatHistory.pop();
           return [
             ...updatedChatHistory,
-            { role: 'model', parts: [{ text: finalBotResponse }] },
+            { role: 'model', parts: [{ text: data.response }] },
           ];
         });
-
-        // Save the conversation to Firestore under user's daily subcollection
-        await updateChatHistoryInFirestore(finalUserMessage, finalBotResponse);
-
         setBotResponseLoading(false);
       } else {
         console.error('Error:', data.error);
@@ -200,7 +109,7 @@ const Chatbot = () => {
       console.error('Error sending message:', error);
       setChatHistory((prevChatHistory) => {
         const updatedChatHistory = [...prevChatHistory];
-        updatedChatHistory.pop(); // Remove the 'loading...' placeholder
+        updatedChatHistory.pop();
         return [
           ...updatedChatHistory,
           {
@@ -239,12 +148,6 @@ const Chatbot = () => {
               }`}
             >
               {chat.parts[0].text}
-              {chat.parts[0].audioUrl && (
-                <audio controls>
-                  <source src={chat.parts[0].audioUrl} type="audio/mp3" />
-                  Your browser does not support the audio element.
-                </audio>
-              )}
             </div>
 
             {chat.role === 'user' && (
