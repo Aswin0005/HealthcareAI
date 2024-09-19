@@ -65,7 +65,7 @@ function App() {
 
   return (
     <>
-      <div className="bg-slate-200 h-screen">
+      <div className="bg-green-50 h-screen">
         <div className="h-20 w-full flex justify-between border border-gray-400">
           <div className="text-[25px] pl-5 pt-5 font-semibold">Mentalality</div>
           <div className="flex mr-20 gap-10 ">
@@ -88,7 +88,7 @@ function App() {
             alt="brain"
             width={430}
             height={420}
-            className="absolute left-[520px] top-[216px]"
+            className="absolute left-[520px] top-[267px]"
           />
           {hoveredIcon && (
             <div
