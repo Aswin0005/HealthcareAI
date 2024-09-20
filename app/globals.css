@@ -21,30 +21,30 @@
   }
 }
 
-
+/*
 .slick-dots {
-  display: flex !important; /* Ensure the dots are flex containers */
-  justify-content: center; /* Center the dots */
+  display: flex !important; /* Ensure the dots are flex containers /
+  justify-content: center; /* Center the dots /
 }
 
 .slick-dots li {
-  margin: 0 5px; /* Space between dots */
+  margin: 0 5px; /* Space between dots /
 }
 
 .slick-dots li button {
-  width: 14px; /* Set the width for the large dot */
-  height: 14px; /* Set the height for the large dot */
-  border-radius: 50%; /* Make it circular */
-  background: #ccc; /* Background color for inactive dots */
-  border: none; /* Remove default border */
+  width: 14px; /* Set the width for the large dot /
+  height: 14px; /* Set the height for the large dot /
+  border-radius: 50%; /* Make it circular /
+  background: #ccc; /* Background color for inactive dots /
+  border: none; /* Remove default border /
 }
 
 .slick-dots li.slick-active button {
-  background: #333; /* Color for the active dot */
+  background: #333; /* Color for the active dot /
 }
 
 .slick-dots li button:before {
-  display: none; /* Hide the default small dot */
+  display: none; /* Hide the default small dot /
 }
 
 .modal {
@@ -66,3 +66,4 @@
   bottom: 0;
   background: rgba(0, 0, 0, 0.75);
 }
+*/
