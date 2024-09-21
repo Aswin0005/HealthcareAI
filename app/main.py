@@ -1,14 +1,13 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import torch
-from transformers import BertTokenizer, BertForSequenceClassification
+from transformers import BertTokenizer, BertForSequenceClassification, AutoTokenizer, AutoModelForSequenceClassification
 from torch.nn.functional import softmax
-from collections import Counter
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-from fastapi.middleware.cors import CORSMiddleware
-
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],  # Adjust if your frontend is hosted elsewhere
@@ -17,13 +16,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-# Load pre-trained BERT model and tokenizer
+# Load pre-trained emotion BERT model and tokenizer
 model_name = "bhadresh-savani/bert-base-uncased-emotion"
 tokenizer = BertTokenizer.from_pretrained(model_name)
 model = BertForSequenceClassification.from_pretrained(model_name)
 
-# Define categories and keywords
+# Load pre-trained toxic BERT model and tokenizer
+toxic_model_name = "unitary/toxic-bert"
+toxic_tokenizer = AutoTokenizer.from_pretrained(toxic_model_name)
+toxic_model = AutoModelForSequenceClassification.from_pretrained(toxic_model_name)
+
+# Define categories and keywords for emotion classification
 categories = ["stress", "depression", "trauma", "relationship", "grief", "finance", "health", "anxiety", "normal", "happy"]
 keywords = {
     "stress": ["overwhelmed", "stress", "stressed", "pressure"],
@@ -41,9 +44,12 @@ keywords = {
 class Responses(BaseModel):
     responses: list
 
+class TextRequest(BaseModel):
+    text: str
+    threshold: float = 0.3
+
 @app.post("/classify")
 async def classify(responses: Responses):
-    print("hi",responses)
     # Concatenate all responses into a single text
     text = " ".join(responses.responses)
 
@@ -69,8 +75,20 @@ async def classify(responses: Responses):
     matched_keywords = [word for word in keywords[max_category] if word in text.lower()]
     return {"category": max_category, "keywords": matched_keywords}
 
+@app.post("/analyze-text/")
+async def analyze_text(request: TextRequest):
+    inputs = toxic_tokenizer(request.text, return_tensors="pt", truncation=True, padding=True)
+    with torch.no_grad():
+        outputs = toxic_model(**inputs)
+    probs = torch.sigmoid(outputs.logits)[0]
+
+    labels = ["toxic", "severe_toxic", "obscene", "threat", "insult", "identity_hate"]
+    toxicity_scores = {label: prob.item() for label, prob in zip(labels, probs)}
+    unsafe = any(score > request.threshold for score in toxicity_scores.values())
+
+    print(toxicity_scores)
+    return {"safe": not unsafe, "toxicity_scores": toxicity_scores}
+
 @app.get("/")
 def read_root():
     return {"message": "AI Classification API is running."}
-
-
